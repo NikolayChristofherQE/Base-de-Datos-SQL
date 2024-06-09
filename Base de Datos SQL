@@ -1,0 +1,194 @@
+#Archivos proporcionados:
+#Demoras
+#Data precisión
+#Data dureza
+#Data metraje
+
+#Requerimientos del ejercicio
+
+1. Crear la base de datos relacional:
+Primero, definamos la estructura de la base de datos con las tablas y las relaciones necesarias.
+
+Estructura de la Base de Datos:
+Demoras:
+
+id_demora (clave primaria)
+id_perforadora (clave foránea a la tabla Perforadoras)
+fecha
+tiempo_demora
+Data precisión:
+
+id_precision (clave primaria)
+id_perforadora (clave foránea a la tabla Perforadoras)
+fecha
+precision_xy
+precision_z
+Data dureza:
+
+id_dureza (clave primaria)
+id_perforadora (clave foránea a la tabla Perforadoras)
+fecha
+dureza_MPa
+Data metraje:
+
+id_metraje (clave primaria)
+id_perforadora (clave foránea a la tabla Perforadoras)
+fecha
+metros_perforados
+
+#Sentencias SQL para crear las tablas:
+
+CREATE TABLE Perforadoras (
+    id_perforadora INT PRIMARY KEY,
+    nombre VARCHAR(100)
+);
+
+CREATE TABLE Demoras (
+    id_demora INT PRIMARY KEY,
+    id_perforadora INT,
+    fecha DATE,
+    tiempo_demora TIME,
+    FOREIGN KEY (id_perforadora) REFERENCES Perforadoras(id_perforadora)
+);
+
+CREATE TABLE Data_precision (
+    id_precision INT PRIMARY KEY,
+    id_perforadora INT,
+    fecha DATE,
+    precision_xy DECIMAL(10,2),
+    precision_z DECIMAL(10,2),
+    FOREIGN KEY (id_perforadora) REFERENCES Perforadoras(id_perforadora)
+);
+
+CREATE TABLE Data_dureza (
+    id_dureza INT PRIMARY KEY,
+    id_perforadora INT,
+    fecha DATE,
+    dureza_MPa DECIMAL(10,2),
+    FOREIGN KEY (id_perforadora) REFERENCES Perforadoras(id_perforadora)
+);
+
+CREATE TABLE Data_metraje (
+    id_metraje INT PRIMARY KEY,
+    id_perforadora INT,
+    fecha DATE,
+    metros_perforados DECIMAL(10,2),
+    FOREIGN KEY (id_perforadora) REFERENCES Perforadoras(id_perforadora)
+);
+
+#2. Importar Datos:
+Para importar los datos desde los archivos Excel a las tablas SQL, sigue estos pasos generales:
+
+Preparación de los datos en Excel: Asegúrate de que los datos en los archivos Excel estén limpios y estructurados de manera adecuada.
+Exportación a CSV: Guarda los archivos Excel como archivos CSV.
+Importación a MySQL: Utiliza la herramienta de importación de MySQL, como LOAD DATA INFILE, o importa los datos desde el entorno de administración de la base de datos (phpMyAdmin, MySQL Workbench, etc.).
+Mapeo de Campos: Asegúrate de que los datos en los archivos CSV coincidan con la estructura de las tablas en la base de datos.
+3. Consultas SQL:
+Aquí están las consultas SQL solicitadas:
+
+#Consulta 1: Obtener el tiempo total de demora por cada perforadora y día.
+
+SELECT id_perforadora, fecha, SUM(tiempo_demora) AS tiempo_total_demora
+FROM Demoras
+GROUP BY id_perforadora, fecha;
+
+#Consulta 2: Calcular la precisión promedio por perforadora.
+
+SELECT id_perforadora, AVG(precision_xy) AS precision_xy_promedio, AVG(precision_z) AS precision_z_promedio
+FROM Data_precision
+GROUP BY id_perforadora;
+
+#Consulta 3: Encontrar la dureza promedio por perforadora y día.
+
+SELECT id_perforadora, fecha, AVG(dureza_MPa) AS dureza_promedio
+FROM Data_dureza
+GROUP BY id_perforadora, fecha;
+
+#Consulta 4: Determinar la cantidad total de metros perforados por cada perforadora y día.
+
+SELECT id_perforadora, fecha, SUM(metros_perforados) AS metros_perforados_total
+FROM Data_metraje
+GROUP BY id_perforadora, fecha;
+
+#4. Vistas:
+Aquí están las vistas solicitadas:
+
+#Vista 1: Resumen diario de métricas clave para cada perforadora.
+sql
+
+CREATE VIEW Resumen_Diario AS
+SELECT p.nombre AS perforadora, 
+       d.fecha AS fecha, 
+       d.tiempo_total_demora,
+       pxy.precision_xy_promedio, 
+       pxy.precision_z_promedio, 
+       dd.dureza_promedio, 
+       dm.metros_perforados_total
+FROM Demoras d
+JOIN (SELECT id_perforadora, fecha, SUM(tiempo_demora) AS tiempo_total_demora
+      FROM Demoras
+      GROUP BY id_perforadora, fecha) d ON d.id_perforadora = p.id_perforadora AND d.fecha = p.fecha
+JOIN (SELECT id_perforadora, fecha, AVG(precision_xy) AS precision_xy_promedio, AVG(precision_z) AS precision_z_promedio
+      FROM Data_precision
+      GROUP BY id_perforadora, fecha) pxy ON d.id_perforadora = pxy.id_perforadora AND d.fecha = pxy.fecha
+JOIN (SELECT id_perforadora, fecha, AVG(dureza_MPa) AS dureza_promedio
+      FROM Data_dureza
+      GROUP BY id_perforadora, fecha) dd ON d.id_perforadora = dd.id_perforadora AND d.fecha = dd.fecha
+JOIN (SELECT id_perforadora, fecha, SUM(metros_perforados) AS metros_perforados_total
+      FROM Data_metraje
+      GROUP BY id_perforadora, fecha) dm ON d.id_perforadora = dm.id_perforadora AND d.fecha = dm.fecha;
+
+#Vista 2: Perforadoras con mayor eficiencia en precisión.
+
+CREATE VIEW Eficiencia_Precision AS
+SELECT id_perforadora, 
+       AVG((precision_xy + precision_z) / 2) AS eficiencia_precision_promedio
+FROM Data_precision
+GROUP BY id_perforadora
+ORDER BY eficiencia_precision_promedio DESC;
+
+#5. Funciones y Procedimientos Almacenados:
+Función para calcular la eficiencia de perforación:
+
+CREATE FUNCTION Calcular_Eficiencia_Perforacion(id_perforadora INT) RETURNS DECIMAL(10,2)
+BEGIN
+    DECLARE metros_perforados DECIMAL(10,2);
+    DECLARE tiempo_operacion TIME;
+    DECLARE eficiencia DECIMAL(10,2);
+    
+    SELECT SUM(metros_perforados) INTO metros_perforados FROM Data_metraje WHERE id_perforadora = id_perforadora;
+    SELECT SUM(tiempo_demora) INTO tiempo
+
+#CREATE FUNCTION Calcular_Eficiencia_Perforacion(id_perforadora INT) RETURNS DECIMAL(10,2)
+BEGIN
+    DECLARE metros_perforados DECIMAL(10,2);
+    DECLARE tiempo_operacion TIME;
+    DECLARE eficiencia DECIMAL(10,2);
+    
+    SELECT SUM(metros_perforados) INTO metros_perforados FROM Data_metraje WHERE id_perforadora = id_perforadora;
+    SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(tiempo_demora))) INTO tiempo_operacion FROM Demoras WHERE id_perforadora = id_perforadora;
+    
+    SET eficiencia = metros_perforados / (TIME_TO_SEC(tiempo_operacion) / 3600);
+    
+    RETURN eficiencia;
+END;
+
+#6. Triggers:
+Aquí está el trigger solicitado:
+
+CREATE TRIGGER Audit_Insert
+AFTER INSERT ON Data_metraje
+FOR EACH ROW
+BEGIN
+    INSERT INTO Auditoria (accion, fecha_hora) VALUES ('Inserción en Data_metraje', NOW());
+END;
+
+#Este trigger registra en una tabla de auditoría cada vez que se inserta una nueva fila en la tabla Data_metraje, incluyendo la fecha y hora de la inserción.
+
+
+
+
+
+
+
+
