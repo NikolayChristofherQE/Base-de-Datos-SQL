@@ -1,0 +1,45 @@
+Informe sobre Base de Datos de Biblioteca
+Introducción
+En esta sección, proporciona una breve introducción al propósito y alcance de la base de datos de la biblioteca. Describe los objetivos de la base de datos y su importancia para la gestión de la información relacionada con libros, autores y préstamos.
+
+Diagrama E-R
+Incluye un diagrama Entidad-Relación que represente visualmente la estructura de la base de datos, mostrando las entidades principales (tablas) y sus relaciones.
+
+Listado de Tablas
+
+Autores
+id_autor (INT, PK): Identificador único del autor.
+nombre (VARCHAR): Nombre del autor.
+nacionalidad (VARCHAR): Nacionalidad del autor.
+
+Libros
+id_libro (INT, PK): Identificador único del libro.
+titulo (VARCHAR): Título del libro.
+id_autor (INT, FK): Clave foránea que hace referencia al autor del libro.
+
+Préstamos
+id_prestamo (INT, PK): Identificador único del préstamo.
+id_libro (INT, FK): Clave foránea que hace referencia al libro prestado.
+fecha_prestamo (DATE): Fecha en que se realizó el préstamo.
+fecha_devolucion (DATE): Fecha en que se devolvió el libro.
+Scripts de Creación de Objetos de la Base de Datos
+Incluye los scripts SQL para crear las tablas y definir las relaciones entre ellas.
+
+Scripts de Inserción de Datos
+Proporciona scripts SQL para insertar datos de ejemplo en las tablas.
+
+Guía para la Importación de Datos
+Ofrece una guía paso a paso sobre cómo importar datos desde archivos externos (por ejemplo, archivos CSV) a las tablas de la base de datos.
+
+Consultas SQL Requeridas
+Enumera las consultas SQL necesarias para realizar operaciones como buscar libros por autor, obtener información sobre préstamos activos, etc.
+
+Definición y Uso de las Vistas Creadas
+Describe las vistas creadas y cómo pueden ser útiles para simplificar y optimizar consultas complejas.
+
+Informes Generados
+Presenta algunos ejemplos de informes generados utilizando consultas SQL para extraer información significativa de la base de datos.
+
+Conclusiones
+Resume las conclusiones obtenidas de los análisis de datos realizados en la base de datos. Destaca los hallazgos clave y cualquier acción recomendada basada en los resultados.
+
